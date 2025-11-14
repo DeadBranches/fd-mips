@@ -1,0 +1,37 @@
+name: build-mips
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  mips-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cross
+        run: cargo install cross
+
+      - name: Build MIPS (musl)
+        run: |
+          cross build --target mips-unknown-linux-musl --release
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fd-mips
+          path: target/mips-unknown-linux-musl/release/fd
+          
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/mips-unknown-linux-musl/release/fd
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
