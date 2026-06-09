@@ -4,3 +4,12 @@ passthrough = ["JEMALLOC_SYS_WITH_LG_PAGE=16"]
 
 [target.aarch64-unknown-linux-musl.env]
 passthrough = ["JEMALLOC_SYS_WITH_LG_PAGE=16"]
+
+# mips-unknown-linux-musl (big-endian, 32-bit) is a Rust Tier 3 target: rustup no
+# longer ships a precompiled std for it, so std must be built from source via
+# build-std (requires a nightly toolchain + the rust-src component). panic_abort
+# is included so the build can use `panic = "abort"` and avoid the missing
+# libunwind link error on static musl mips. See rust-lang/rust#120655.
+[target.mips-unknown-linux-musl]
+build-std = ["std", "panic_abort"]
+image = "ghcr.io/cross-rs/mips-unknown-linux-musl:main"
