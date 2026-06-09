@@ -16,11 +16,6 @@ jobs:
 
     env:
       target: mips-unknown-linux-musl
-      # mips-unknown-linux-musl is static-linked; building std from source
-      # pulls in libunwind, which is not available for this Tier 3 target.
-      # Build with panic=abort (paired with build-std's panic_abort in
-      # Cross.toml) to avoid the "cannot find -lunwind" link error.
-      RUSTFLAGS: "-C panic=abort"
 
     steps:
       - name: Checkout
