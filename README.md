@@ -1,5 +1,16 @@
 # fd (mips32 big-endian binary)
 
+> [!TIP]
+> **This repo repackages fd** as a mips32 big-endian binary. No changes have been made to the mainline code.
+>
+> **To download** the mips32 fd binary, see the [releases section](https://github.com/deadbranch-forks/fd-mips/releases/latest).
+>
+> Please direct all contributions, requests for support, and donations to [the mainline fd repository](https://github.com/sharkdp/fd).
+>
+> <small>A big thanks to the <i>fd Repository Contributors.</i></small>
+
+---
+
 [![CICD](https://github.com/sharkdp/fd/actions/workflows/CICD.yml/badge.svg)](https://github.com/sharkdp/fd/actions/workflows/CICD.yml)
 [![Version info](https://img.shields.io/crates/v/fd-find.svg)](https://crates.io/crates/fd-find)
 [[中文](https://github.com/cha0ran/fd-zh)]
@@ -9,13 +20,6 @@
 It is a simple, fast and user-friendly alternative to [`find`](https://www.gnu.org/software/findutils/).
 While it does not aim to support all of `find`'s powerful functionality, it provides sensible
 (opinionated) defaults for a majority of use cases.
-
-> [!TIP]
-> **This repo repackages fd**. This repository provides a big-endian mips32 binary for [fd](). No changes are made to the mainline code. See the [releases section](https://github.com/deadbranch-forks/fd-mips/releases/latest) to download fd for mips. 
->
-> All requests for support or offers for contribution should be directed toward [the mainline fd repository](https://github.com/sharkdp/fd).
->
-> A big thanks to the *fd Repository Contributors.*
 
 [Installation](#installation) • [How to use](#how-to-use) • [Troubleshooting](#troubleshooting)
 
