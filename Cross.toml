@@ -4,3 +4,10 @@ passthrough = ["JEMALLOC_SYS_WITH_LG_PAGE=16"]
 
 [target.aarch64-unknown-linux-musl.env]
 passthrough = ["JEMALLOC_SYS_WITH_LG_PAGE=16"]
+
+# mips-unknown-linux-musl (big-endian, 32-bit) is a Rust Tier 3 target: rustup no
+# longer ships a precompiled std for it, so std must be built from source via
+# build-std (requires a nightly toolchain + the rust-src component).
+[target.mips-unknown-linux-musl]
+build-std = true
+image = "ghcr.io/cross-rs/mips-unknown-linux-musl:main"
