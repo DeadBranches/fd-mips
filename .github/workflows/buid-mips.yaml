@@ -1,0 +1,85 @@
+name: build-mips
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  mips-build:
+    name: Build 32-bit MIPS (big-endian) binary
+    runs-on: ubuntu-latest
+
+    env:
+      target: mips-unknown-linux-musl
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # mips-unknown-linux-musl is a Rust Tier 3 target: rustup ships no
+      # precompiled std, so we need a nightly toolchain plus rust-src to build
+      # std from source via -Z build-std (configured in Cross.toml).
+      - name: Install Rust (nightly + rust-src)
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rust-src
+
+      - name: Install cross
+        env:
+          cross_version: "v0.2.5"
+          package_name: "cross-x86_64-unknown-linux-gnu.tar.gz"
+          GH_TOKEN: "${{ github.token }}"
+        run: |
+          dir="$HOME/.local/bin/"
+          mkdir -p "$dir"
+          gh release download --repo cross-rs/cross \
+            --pattern "${package_name}" -O - "${cross_version}" \
+            | tar -C "$dir" -xz
+          echo "$dir" >> "$GITHUB_PATH"
+
+      - name: Extract crate version
+        id: meta
+        run: |
+          version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Build MIPS (musl)
+        run: cross build --locked --release --target "${target}"
+
+      - name: Package tarball
+        id: package
+        env:
+          version: ${{ steps.meta.outputs.version }}
+        run: |
+          pkg_basename="fd-v${version}-${target}"
+          pkg_name="${pkg_basename}.tar.gz"
+          archive_dir="dist/${pkg_basename}"
+          mkdir -p "${archive_dir}"
+
+          cp "target/${target}/release/fd" "${archive_dir}/"
+          cp README.md LICENSE-MIT LICENSE-APACHE CHANGELOG.md "${archive_dir}/"
+          cp "doc/fd.1" "${archive_dir}/"
+
+          tar czf "dist/${pkg_name}" -C dist "${pkg_basename}"
+          echo "pkg_path=dist/${pkg_name}" >> "$GITHUB_OUTPUT"
+          echo "pkg_name=${pkg_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.pkg_name }}
+          path: ${{ steps.package.outputs.pkg_path }}
+          compression-level: 0
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.package.outputs.pkg_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
